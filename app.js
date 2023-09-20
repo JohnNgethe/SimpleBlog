@@ -94,5 +94,5 @@ app.get("/posts/:postId", async (req, res) => {
 let port = process.env.PORT || 3000;
 
 app.listen(port, function () {
-  console.log("Server started successfully on ${port}");
+  console.log("Server started successfully on " + port);
 });
