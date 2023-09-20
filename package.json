@@ -9,10 +9,7 @@
   },
   "author": "",
   "license": "ISC",
-  "engines": {
-    "node": "18.13.0"
-  },
-  "dependencies": {
+    "dependencies": {
     "body-parser": "^1.18.3",
     "dotenv": "^16.3.1",
     "ejs": "^3.1.9",
