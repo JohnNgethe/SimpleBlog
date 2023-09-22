@@ -1,5 +1,3 @@
-//jshint esversion:6
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
@@ -80,7 +78,9 @@ app.get("/posts/:postId", async (req, res) => {
       res.render("post", {
         title: post.title,
         content: post.content,
+        post: post
       });
+
     } else {
       console.log("Post not found");
       res.status(404).send("Post not found.");
@@ -90,6 +90,27 @@ app.get("/posts/:postId", async (req, res) => {
     res.status(500).send("An error occurred while fetching the post.");
   }
 });
+
+app.post("/posts/:postId/delete", async (req, res) => {
+  const requestedPostId = req.params.postId;
+
+  try {
+    // Find the post by ID and delete it
+    const deletedPost = await Post.findByIdAndDelete(requestedPostId);
+
+    if (deletedPost) {
+      console.log(`Deleted post with ID: ${requestedPostId}`);
+      res.redirect("/");
+    } else {
+      console.log("Post not found");
+      res.status(404).send("Post not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("An error occurred while deleting the post.");
+  }
+});
+
 
 let port = process.env.PORT || 3000;
 
