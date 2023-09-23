@@ -7,6 +7,7 @@ const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const passportLocalMongoose = require("passport-local-mongoose");
+const GoogleStrategy = require("passport-google-oauth20").Strategy; // Add Google Strategy
 require("dotenv").config();
 
 const aboutContent =
@@ -29,7 +30,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect(process.env.DB_URI,{
+mongoose.connect(process.env.DB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -68,6 +69,40 @@ const Post = mongoose.model("Post", postSchema);
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check if a user with this Google profile ID exists in your database
+        let user = await User.findOne({ googleId: profile.id });
+
+        if (!user) {
+          // If the user doesn't exist, create a new user
+          user = new User({
+            googleId: profile.id,
+            // You can save other relevant data from the Google profile here
+            // For example, you might want to save the user's name and email
+            username: profile.displayName,
+            email: profile.emails[0].value,
+          });
+
+          // Save the new user to the database
+          await user.save();
+        }
+
+        // Return the user to be serialized and stored in the session
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    }
+  )
+);
 
 app.get("/", async (req, res) => {
   try {
@@ -93,6 +128,7 @@ app.get("/about", (req, res) => {
 app.get("/contact", (req, res) => {
   res.render("contact", { contactCont: contactContent, currentUser: req.user });
 });
+
 app.get("/compose", isLoggedIn, (req, res) => {
   res.render("compose", { currentUser: req.user });
 });
@@ -224,6 +260,20 @@ app.post(
   }),
   (req, res) => {}
 );
+
+app.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  (req, res) => {
+    // Successful authentication, redirect to a secure page or handle as needed
+    res.redirect("/");
+  }
+);
+
 app.get("/logout", (req, res) => {
   req.logout(function (err) {
     if (err) {

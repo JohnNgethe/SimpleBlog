@@ -19,8 +19,11 @@
         <p>Logged in as <%= currentUser.username %></p>
         <a href="/logout" class="btn btn-danger">Logout</a>
       <% } else { %>
-        <p>Don't have an account? <a href="/register">Register here</a></p>
+        <p>Don't have an account? or <a href="/register">Register here</a></p>
       <% } %>
+      <br>
+      <a href="/auth/google" class="btn btn-primary">Sign in with Google</a>
+
     </div>
   </div>
 </div>
