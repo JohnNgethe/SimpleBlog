@@ -78,8 +78,8 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Check if a user with this Google profile ID exists in your database
-        let user = await User.findOne({ googleId: profile.id });
+        // Check if a user with this Google email address exists in your database
+        let user = await User.findOne({ email: profile.emails[0].value });
 
         if (!user) {
           // If the user doesn't exist, create a new user
@@ -92,6 +92,15 @@ passport.use(
           });
 
           // Save the new user to the database
+          await user.save();
+        } else {
+          // If the user exists, update their Google ID (in case it changed)
+          user.googleId = profile.id;
+          // You can also update other relevant data here
+          // For example, you might want to update the user's name
+          user.username = profile.displayName;
+
+          // Save the updated user to the database
           await user.save();
         }
 
