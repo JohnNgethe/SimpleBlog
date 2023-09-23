@@ -157,7 +157,7 @@ app.get("/posts/:postId/edit", isLoggedIn, async (req, res) => {
     const post = await Post.findOne({ _id: requestedPostId });
 
     if (post && post.author.equals(req.user._id)) {
-      res.render("edit", {
+      res.render("editpost", {
         post: post,
         currentUser: req.user,
       });

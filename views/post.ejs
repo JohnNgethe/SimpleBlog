@@ -1,11 +1,19 @@
 <%- include("partials/header") %>
 
-<h1> <%= title  %></h1>
+<h1> <%= title %></h1>
 <p> <%= content %></p>
 
-<form action="/posts/<%= post._id %>/delete" method="POST">
-  <button type="submit" class="btn btn-danger">Delete</button>
-</form>
-
+<div class="d-flex justify-content-between">
+  <div>
+    <a href="/posts/<%= post._id %>/edit" class="btn btn-primary">Edit Post</a>
+  </div>
+  <br> 
+  <div>
+    <form action="/posts/<%= post._id %>/delete" method="POST">
+    <button type="submit" class="btn btn-danger">Delete</button>
+  </form>
+  </div>
+  
+</div>
 
 <%- include("partials/footer") %>
