@@ -8,6 +8,8 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require("passport-google-oauth20").Strategy; // Add Google Strategy
+const useragent = require("express-useragent"); // Import express-useragent
+
 require("dotenv").config();
 
 const aboutContent =
@@ -29,6 +31,14 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(useragent.express());
+
+// Detect if the screen width is less than a certain threshold (e.g., 768px) to determine if it's a mobile device
+app.use((req, res, next) => {
+  res.locals.isMobile = req.useragent.isMobile;
+  next();
+});
+
 
 mongoose.connect(process.env.DB_URI, {
   useNewUrlParser: true,
@@ -62,6 +72,10 @@ const postSchema = {
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 };
 const Post = mongoose.model("Post", postSchema);
@@ -112,14 +126,38 @@ passport.use(
     }
   )
 );
-
 app.get("/", async (req, res) => {
   try {
     if (req.isAuthenticated()) {
-      const posts = await Post.find({ author: req.user._id });
+      const page = parseInt(req.query.page) || 1;
+      const postsPerPage = 4; // Number of posts per page
+      const skip = (page - 1) * postsPerPage;
+      let query = { author: req.user._id };
+
+      // Check if a search query is provided
+      if (req.query.search) {
+        query.title = new RegExp(_.escapeRegExp(req.query.search), "i"); // Case-insensitive search
+      }
+
+      const posts = await Post.find(query)
+        .sort({ createdAt: -1 }) // Sort by newest first
+        .skip(skip)
+        .limit(postsPerPage);
+
+      // Calculate total number of pages
+      const totalPosts = await Post.countDocuments(query);
+      const totalPages = Math.ceil(totalPosts / postsPerPage);
+
+      // Generate an array of page numbers
+      const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
       res.render("home", {
         posts: posts,
         currentUser: req.user,
+        currentPage: page,
+        totalPages: totalPages,
+        pageNumbers: pageNumbers, // Pass the page numbers to the template
+        search: req.query.search, // Pass the search query back to the template
       });
     } else {
       res.redirect("/login");
@@ -291,6 +329,8 @@ app.get("/logout", (req, res) => {
     res.redirect("/login");
   });
 });
+
+
 
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {

@@ -1,11 +1,38 @@
 <%- include("partials/header") %>
 
-<% posts.forEach((post)=>{%>
+<!-- Add a search form -->
+<form action="/" method="GET" class="search-form">
+  <input type="text" name="search" placeholder="Search by title" value="<%= search || '' %>">
+  <button type="submit">Search</button>
+</form>
 
-<h1><%= post.title %></h1>
-<p>
-  <%= post.content.substring(0,105)+"..." %>
-  <a href="/posts/<%= post._id%>">Read More</a>
-</p>
-<% }); %> 
+<div class="posts-container">
+  <% posts.slice(0, isMobile ? 10 : 4).forEach((post) => { %>
+    <div class="post">
+      <h1><%= post.title %></h1>
+      <p class="post-meta">Created on <%= post.createdAt.toLocaleString() %> by <%= post.author.username %></p>
+      <p><%= post.content.substring(0, 105) + "..." %></p>
+      <a href="/posts/<%= post._id %>">Read More</a>
+    </div>
+  <% }); %>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+  <% if (currentPage > 1) { %>
+    <a href="/?page=<%= currentPage - 1 %>&<%= search ? 'search=' + search : '' %>">Previous</a>
+  <% } %>
+  
+  <% pageNumbers.forEach((pageNumber) => { %>
+    <a href="/?page=<%= pageNumber %>&<%= search ? 'search=' + search : '' %>" class="<%= currentPage === pageNumber ? 'active' : '' %>">
+      <%= pageNumber %>
+    </a>
+  <% }); %>
+
+  <% if (currentPage < totalPages) { %>
+    <a href="/?page=<%= currentPage + 1 %>&<%= search ? 'search=' + search : '' %>">Next</a>
+  <% } %>
+</div>
+
 <%- include("partials/footer") %>
+
