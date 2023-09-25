@@ -77,6 +77,10 @@ const postSchema = {
     type: Date,
     default: Date.now,
   },
+  isPublic: {
+    type: Boolean,
+    default: false, // By default, posts are not public
+  },
 };
 const Post = mongoose.model("Post", postSchema);
 
@@ -169,6 +173,46 @@ app.get("/", async (req, res) => {
   }
 });
 
+app.get("/public", async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const postsPerPage = 4; // Number of posts per page
+    const skip = (page - 1) * postsPerPage;
+    let query = { isPublic: true }; // Filter by public posts
+
+    // Check if a search query is provided
+    if (req.query.search) {
+      query.title = new RegExp(_.escapeRegExp(req.query.search), "i"); // Case-insensitive search
+    }
+
+    const publicPosts = await Post.find(query)
+      .populate("author")
+      .sort({ createdAt: -1 }) // Sort by newest first
+      .skip(skip)
+      .limit(postsPerPage);
+
+    // Calculate total number of pages
+    const totalPosts = await Post.countDocuments(query);
+    const totalPages = Math.ceil(totalPosts / postsPerPage);
+
+    // Generate an array of page numbers
+    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+    res.render("public", {
+      publicPosts: publicPosts,
+      currentUser: req.user,
+      currentPage: page,
+      totalPages: totalPages,
+      pageNumbers: pageNumbers, // Pass the page numbers to the template
+      search: req.query.search, // Pass the search query back to the template
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("An error occurred while fetching public posts.");
+  }
+});
+
+
 app.get("/about", (req, res) => {
   res.render("about", { aboutCont: aboutContent, currentUser: req.user });
 });
@@ -183,6 +227,7 @@ app.get("/compose", isLoggedIn, (req, res) => {
 
 app.post("/compose", isLoggedIn, async (req, res) => {
   try {
+    const isPublic = req.body.isPublic === "on";
     const post = new Post({
       title: req.body.postTitle,
       content: req.body.postBody,
@@ -190,6 +235,7 @@ app.post("/compose", isLoggedIn, async (req, res) => {
         _id: req.user._id,
         username: req.user.username,
       },
+      isPublic:isPublic, // Convert the isPublic checkbox value to a boolean
     });
 
     // Save the new post to the database
@@ -230,15 +276,31 @@ app.post("/posts/:postId/delete", isLoggedIn, async (req, res) => {
   const requestedPostId = req.params.postId;
 
   try {
-    // Find the post by ID and delete it
-    const deletedPost = await Post.findByIdAndDelete(requestedPostId);
+    // Find the post by ID
+    const post = await Post.findById(requestedPostId);
 
-    if (deletedPost) {
-      console.log(`Deleted post with ID: ${requestedPostId}`);
-      res.redirect("/");
-    } else {
+    if (!post) {
       console.log("Post not found");
       res.status(404).send("Post not found.");
+      return;
+    }
+
+    // Check if the user is the author of the post
+    if (post.author.equals(req.user._id)) {
+      // If the user is the author, allow deletion
+      const deletedPost = await Post.findByIdAndDelete(requestedPostId);
+
+      if (deletedPost) {
+        console.log(`Deleted post with ID: ${requestedPostId}`);
+        res.redirect("/");
+      } else {
+        console.log("Post not found");
+        res.status(404).send("Post not found.");
+      }
+    } else {
+      // If the user is not the author, deny deletion
+      console.log("Unauthorized to delete this post");
+      res.status(403).send("Unauthorized to delete this post.");
     }
   } catch (err) {
     console.error(err);

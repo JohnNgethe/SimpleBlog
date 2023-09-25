@@ -1,7 +1,5 @@
 <%- include("partials/header") %>
 
-<h1>Public Posts</h1>
-
 <!-- Add a search form -->
 <form action="/public" method="GET" class="search-form">
   <input type="text" name="search" placeholder="Search by title" value="<%= search || '' %>">
@@ -9,17 +7,15 @@
 </form>
 
 <div class="posts-container">
-  <% publicPosts.forEach((post) => { %>
-    <div class="post">
+  <% publicPosts.forEach((post, index) => { %>
+    <div class="post <%= isMobile || index < 10 ? 'col-xs-12' : 'col-xs-6' %>">
       <h1><%= post.title %></h1>
-      <p class="post-meta">Created by <%= post.author.username %></p>
+      <p class="post-meta">Created on <%= post.createdAt.toLocaleString() %> by <%= post.author.username %></p>
       <p><%= post.content.substring(0, 105) + "..." %></p>
       <a href="/posts/<%= post._id %>">Read More</a>
     </div>
   <% }); %>
 </div>
-
-
 
 <!-- Pagination -->
 <div class="pagination">

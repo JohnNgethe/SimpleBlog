@@ -1,19 +1,20 @@
 <%- include("partials/header") %>
 
-<h1> <%= title %></h1>
-<p> <%= content %></p>
+<h1><%= title %></h1>
+<p><%= content %></p>
 
-<div class="d-flex justify-content-between">
-  <div>
-    <a href="/posts/<%= post._id %>/edit" class="btn btn-primary">Edit Post</a>
+<% if (currentUser && currentUser._id.equals(post.author._id)) { %>
+  <div class="d-flex justify-content-between">
+    <div>
+      <a href="/posts/<%= post._id %>/edit" class="btn btn-primary">Edit Post</a>
+    </div>
+    <br>
+    <div>
+      <form action="/posts/<%= post._id %>/delete" method="POST">
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </form>
+    </div>
   </div>
-  <br> 
-  <div>
-    <form action="/posts/<%= post._id %>/delete" method="POST">
-    <button type="submit" class="btn btn-danger">Delete</button>
-  </form>
-  </div>
-  
-</div>
+<% } %>
 
 <%- include("partials/footer") %>

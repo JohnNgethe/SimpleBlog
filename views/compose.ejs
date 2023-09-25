@@ -4,14 +4,19 @@
 
 <form action="/compose" method="post">
 
-    <div class="form-group">
-        <label >Title</label>
-        <input type="text" class="form-control" name="postTitle" autocomplete="off">
-        <label for="">Post</label>
-        <textarea class="form-control" name="postBody" id="" cols="30" rows="5"></textarea>
-    </div>
-    <button class="btn btn-primary" type="submit" name="button">Publish</button>
+  <div class="form-group">
+    <label>Title</label>
+    <input type="text" class="form-control" name="postTitle" autocomplete="off">
+    <label for="postBody">Post</label>
+    <textarea class="form-control" name="postBody" id="postBody" cols="30" rows="5"></textarea>
+  </div>
 
-   </form>
+  <div class="form-check">
+    <input type="checkbox" class="form-check-input" name="isPublic" id="isPublic">
+    <label class="form-check-label" for="isPublic">Make Public</label>
+  </div>
+
+  <button class="btn btn-primary" type="submit" name="button">Publish</button>
+</form>
 
 <%- include("partials/footer") %>
