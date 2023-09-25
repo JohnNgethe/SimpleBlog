@@ -33,3 +33,9 @@
 	font-size: 12px;
   color: #fff;
 }
+
+/* this makes the author name to be bold and to capitalize the first letter */
+.author-username {
+    font-weight: bold;
+    text-transform: capitalize;
+}

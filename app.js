@@ -144,7 +144,6 @@ app.get("/", async (req, res) => {
       }
 
       const posts = await Post.find(query)
-        .populate('author')
         .sort({ createdAt: -1 }) // Sort by newest first
         .skip(skip)
         .limit(postsPerPage);
@@ -338,6 +337,14 @@ app.post("/posts/:postId/edit", isLoggedIn, async (req, res) => {
     if (post && post.author.equals(req.user._id)) {
       post.title = req.body.postTitle;
       post.content = req.body.postBody;
+
+      // Check if the "makePublic" checkbox is checked
+      if (req.body.makePublic === "on") {
+        post.isPublic = true;
+      } else {
+        post.isPublic = false;
+      }
+
       post.save();
       res.redirect(`/posts/${requestedPostId}`);
     } else {
@@ -349,6 +356,7 @@ app.post("/posts/:postId/edit", isLoggedIn, async (req, res) => {
     res.status(500).send("An error occurred while updating the post.");
   }
 });
+
 
 app.get("/register", (req, res) => {
   res.render("register", { currentUser: req.user });

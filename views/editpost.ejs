@@ -3,15 +3,19 @@
 <h1>Edit Post</h1>
 
 <form action="/posts/<%= post._id %>/edit" method="POST">
-  <div class="form-group">
-    <label for="postTitle">Title</label>
-    <input type="text" class="form-control" id="postTitle" name="postTitle" value="<%= post.title %>" required>
-  </div>
-  <div class="form-group">
-    <label for="postBody">Content</label>
-    <textarea class="form-control" id="postBody" name="postBody" rows="4" required><%= post.content %></textarea>
-  </div>
-  <button type="submit" class="btn btn-primary">Update Post</button>
+    <div class="form-group">
+        <label>Title</label>
+        <input type="text" class="form-control" name="postTitle" value="<%= post.title %>" autocomplete="off">
+    </div>
+    <div class="form-group">
+        <label>Content</label>
+        <textarea class="form-control" name="postBody" cols="30" rows="5"><%= post.content %></textarea>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="makePublic" name="makePublic" <% if (post.isPublic) { %>checked<% } %>>
+        <label class="form-check-label" for="makePublic">Make Public</label>
+    </div>
+    <button class="btn btn-primary" type="submit">Update Post</button>
 </form>
 
 <%- include("partials/footer") %>
