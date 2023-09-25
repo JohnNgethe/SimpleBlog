@@ -140,6 +140,7 @@ app.get("/", async (req, res) => {
       }
 
       const posts = await Post.find(query)
+        .populate('author')
         .sort({ createdAt: -1 }) // Sort by newest first
         .skip(skip)
         .limit(postsPerPage);
@@ -180,15 +181,27 @@ app.get("/compose", isLoggedIn, (req, res) => {
   res.render("compose", { currentUser: req.user });
 });
 
-app.post("/compose", isLoggedIn, (req, res) => {
-  const post = new Post({
-    title: req.body.postTitle,
-    content: req.body.postBody,
-    author: req.user._id,
-  });
-  post.save();
-  res.redirect("/");
+app.post("/compose", isLoggedIn, async (req, res) => {
+  try {
+    const post = new Post({
+      title: req.body.postTitle,
+      content: req.body.postBody,
+      author: {
+        _id: req.user._id,
+        username: req.user.username,
+      },
+    });
+
+    // Save the new post to the database
+    await post.save();
+
+    res.redirect("/");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while creating the post.");
+  }
 });
+
 
 app.get("/posts/:postId", async (req, res) => {
   const requestedPostId = req.params.postId;
