@@ -6,9 +6,10 @@
   <button type="submit">Search</button>
 </form>
 
+
 <div class="posts-container">
-  <% publicPosts.forEach((post, index) => { %>
-    <div class="post <%= isMobile ? 'col-xs-12' : (index < 4 ? 'col-xs-12' : 'col-xs-6') %>">
+  <% publicPosts.slice(0, isMobile ? 10 : 4).forEach((post) => { %>
+    <div class="post col-xs-12">
       <h1><%= post.title %></h1>
       <p class="post-meta">Created on <%= post.createdAt.toLocaleString() %> by <span class="author-username"><%= post.author.username %></span></p>
       <p><%= post.content.substring(0, 105) + "..." %></p>
@@ -16,7 +17,6 @@
     </div>
   <% }); %>
 </div>
-
 
 <!-- Pagination -->
 <div class="pagination">
