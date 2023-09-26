@@ -162,6 +162,7 @@ app.get("/", async (req, res) => {
         totalPages: totalPages,
         pageNumbers: pageNumbers, // Pass the page numbers to the template
         search: req.query.search, // Pass the search query back to the template
+        isMobile: res.locals.isMobile, // Pass the isMobile variable to the template
       });
     } else {
       res.redirect("/login");
@@ -204,6 +205,7 @@ app.get("/public", async (req, res) => {
       totalPages: totalPages,
       pageNumbers: pageNumbers, // Pass the page numbers to the template
       search: req.query.search, // Pass the search query back to the template
+      isMobile: res.locals.isMobile, // Pass the isMobile variable to the template
     });
   } catch (err) {
     console.error(err);
