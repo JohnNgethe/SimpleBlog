@@ -7,7 +7,7 @@ Welcome to the README of the SimpleBlog project. In this document, we'll explore
 - [Routes Overview](#routes-overview)
   - [Express Setup](#express-setup)
   - [User Authentication](#user-authentication)
-  - [Homepage](#homepage)
+  - [Homepage](#Homepage)
   - [Public Posts](#public-posts)
   - [About and Contact](#about-and-contact)
   - [Compose New Post](#compose-new-post)
