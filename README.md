@@ -267,4 +267,3 @@ To get started with the project locally, follow these steps:
 Feel free to explore the project's source code and make any contributions or improvements.
 
 For more detailed information and setup instructions, please refer to the project's documentation and source code.
-```

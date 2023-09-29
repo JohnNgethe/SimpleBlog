@@ -37,7 +37,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 mongoose.connect(process.env.DB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -211,13 +210,8 @@ app.get("/public", async (req, res) => {
   }
 });
 
-
 app.get("/about", (req, res) => {
   res.render("about", { aboutCont: aboutContent, currentUser: req.user });
-});
-
-app.get("/contact", (req, res) => {
-  res.render("contact", { contactCont: contactContent, currentUser: req.user });
 });
 
 app.get("/compose", isLoggedIn, (req, res) => {
@@ -234,7 +228,7 @@ app.post("/compose", isLoggedIn, async (req, res) => {
         _id: req.user._id,
         username: req.user.username,
       },
-      isPublic:isPublic, // Convert the isPublic checkbox value to a boolean
+      isPublic: isPublic, // Convert the isPublic checkbox value to a boolean
     });
 
     // Save the new post to the database
@@ -246,7 +240,6 @@ app.post("/compose", isLoggedIn, async (req, res) => {
     res.status(500).send("An error occurred while creating the post.");
   }
 });
-
 
 app.get("/posts/:postId", async (req, res) => {
   const requestedPostId = req.params.postId;
@@ -290,7 +283,7 @@ app.post("/posts/:postId/delete", isLoggedIn, async (req, res) => {
       const deletedPost = await Post.findByIdAndDelete(requestedPostId);
 
       if (deletedPost) {
-        console.log(`Deleted post with ID: ${requestedPostId}`);
+        console.log(`Deleted post: ${post}`);
         res.redirect("/");
       } else {
         console.log("Post not found");
@@ -357,7 +350,6 @@ app.post("/posts/:postId/edit", isLoggedIn, async (req, res) => {
   }
 });
 
-
 app.get("/register", (req, res) => {
   res.render("register", { currentUser: req.user });
 });
@@ -412,8 +404,6 @@ app.get("/logout", (req, res) => {
     res.redirect("/login");
   });
 });
-
-
 
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
